@@ -59,7 +59,7 @@ navegador ──► frontend (Nginx) ──/api──► backend (Node/Express) 
 
 La primera vez, PostgreSQL ejecuta [db/init.sql](DOCKERCOMPOSE/db/init.sql), que crea las tablas y carga los datos de ejemplo.
 
-> `init.sql` solo se ejecuta cuando la base de datos se crea desde cero. Si lo modificas (por ejemplo, para agregar una moneda), corre `docker compose down -v` antes de volver a levantar todo; si no, PostgreSQL sigue usando los datos viejos guardados en el volumen.
+> `init.sql` solo se ejecuta cuando la base de datos se crea desde cero. Si se modifica  (por ejemplo, para agregar una moneda), se debe correr `docker compose down -v` antes de volver a levantar todo; si no, PostgreSQL sigue usando los datos viejos guardados en el volumen.
 
 ### Comandos de Docker Compose
 
@@ -71,7 +71,7 @@ docker compose logs -f         # ver los logs en vivo (Ctrl+C para salir)
 docker compose logs backend    # logs de un solo servicio
 docker compose stop            # detener sin borrar contenedores
 docker compose down            # detener y borrar contenedores (los datos se conservan)
-docker compose down -v         # además borra el volumen: la base de datos vuelve a empezar de cero
+docker compose down -v         # borra el volumen y la base de datos vuelve a empezar de cero
 ```
 
 Para entrar a la base de datos y ver los datos:
@@ -146,12 +146,12 @@ Todo lo anterior (red, variables, puertos, volúmenes y orden) ya está escrito 
 | | Solo Dockerfiles | Docker Compose |
 | --- | --- | --- |
 | Comandos para levantar todo | 6 (una red, dos `build` y tres `run`) | 1: `docker compose up --build` |
-| Red entre contenedores | La creas tú y la indicas en cada `run` (`--network`) | Automática: los servicios comparten una red y se llaman por su nombre |
+| Red entre contenedores | Creación manual y se indica en cada `run` (`--network`) | Automática: los servicios comparten una red y se llaman por su nombre |
 | Configuración (variables, puertos, volúmenes) | Repartida en las opciones `-e`, `-p` y `-v` de cada `docker run` | Reunida en un solo archivo |
-| Orden de arranque | Lo cuidas tú | `depends_on` y `healthcheck`: el backend espera a que PostgreSQL esté sano |
+| Orden de arranque | Manual | `depends_on` y `healthcheck`: el backend espera a que PostgreSQL esté sano |
 | Apagar y limpiar | `stop` y `rm` por cada contenedor, más la red y el volumen | `docker compose down` |
 | Compartir el proyecto | Hay que pasar los comandos y que nadie se equivoque | Basta con el archivo: `docker compose up` |
-| Cuándo conviene | Una sola imagen (como CONDOCKER) | Varios servicios que trabajan juntos |
+| Cuándo conviene | Una sola imagen  | Varios servicios que trabajan juntos |
 
 #### Qué línea de `docker-compose.yml` reemplaza a qué comando
 
@@ -164,7 +164,7 @@ Todo lo anterior (red, variables, puertos, volúmenes y orden) ya está escrito 
 | `ports: "8081:80"` | `-p 8081:80` |
 | `volumes:` | `-v origen:destino` |
 | Red creada automáticamente | `docker network create` y `--network` |
-| `depends_on` y `healthcheck` | esperar tú a que la base de datos esté lista |
+| `depends_on` y `healthcheck` | esperar a que la base de datos esté lista |
 
 ---
 
@@ -252,22 +252,6 @@ docker stop conversor-nginx                        # 7. detenerlo -> la página 
 ```
 
 ---
-
-## Estructura del proyecto
-
-```text
-SINDOCKER/
-├── index.html · package.json · vite.config.js
-└── src/
-    ├── main.jsx · App.jsx · estilos.css · formato.js
-    ├── componentes/    Conversor.jsx · Historial.jsx · Grafico.jsx
-    └── servicio.js     datos fijos + localStorage
-CONDOCKER/          (mismo proyecto) + Dockerfile + .dockerignore
-DOCKERCOMPOSE/
-├── docker-compose.yml
-├── frontend/       (mismo proyecto, con servicio.js que llama a la API) + nginx.conf + Dockerfile
-├── backend/        server.js · package.json · Dockerfile
-└── db/             init.sql
-```
+ 
 
 Las tasas de cambio son valores de ejemplo, no datos reales.
